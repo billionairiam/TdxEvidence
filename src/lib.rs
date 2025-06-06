@@ -1,7 +1,10 @@
 use anyhow::*;
 use kbs_types::Tee;
 
+pub mod eventlog;
 pub mod sample;
+pub mod tdx;
+pub mod tsm_report;
 pub mod utils;
 
 #[cfg(feature = "tdx-attester")]

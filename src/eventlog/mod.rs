@@ -81,7 +81,7 @@ impl EventLog {
             }
 
             let aael = AAEventlog::from_str(&content).context("Parse AAEL")?;
-            ler rtmr = rtmr_extender
+            let rtmr = rtmr_extender
                 .get_runtime_measurement(pcr)
                 .await
                 .context("Get RTMR failed")?;
@@ -109,7 +109,7 @@ impl EventLog {
                     rtmr_extender
                         .extend_runtime_measurement(digest, pcr)
                         .await
-                        context("Extend RTMR failed")?;
+                        .context("Extend RTMR failed")?;
                 }
             }
 
@@ -160,7 +160,7 @@ impl EventLog {
         let init_value = format!("{:0>width$}", init_value, width = self.alg.digest_len());
         let init_entry = LogEntry::Init {
             hash_alg: self.alg,
-            value: &init_value.
+            value: &init_value,
         };
 
         let digest = init_entry.digest_with(self.alg);
@@ -178,7 +178,7 @@ impl EventLog {
 
 pub struct Content<'a>(&'a str);
 
-impl<'a> TryFrom<'a str> for Content<'a> {
+impl<'a> TryFrom<&'a str> for Content<'a> {
     type Error = anyhow::Error;
 
     fn try_from(value: &'a str) -> Result<Self, Self::Error> {
@@ -216,7 +216,7 @@ impl Display for LogEntry<'_> {
                 operation,
                 content,
             } => {
-                write!(f, "{} {} {}", domain, operation, content);
+                write!(f, "{} {} {}", domain, operation, content)
             }
             LogEntry::Init { hash_alg, value } => {
                 let (sha, init_value) = match hash_alg {

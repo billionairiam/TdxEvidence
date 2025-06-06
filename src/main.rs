@@ -1,6 +1,6 @@
-mod report;
+mod tdx;
 
-use report::TdTransportType;
+use tdx::TdTransportType;
 
 use scroll::Pread;
 

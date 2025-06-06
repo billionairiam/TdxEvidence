@@ -93,7 +93,7 @@ pub struct TdReport {
 }
 
 impl TdReport {
-    pub fn get_rtmr(&self, rtmr_index; usize) -> Vec<u8> {
+    pub fn get_rtmr(&self, rtmr_index: usize) -> Vec<u8> {
         let mut rtmr_u8 = Vec::new();
         let rtmr = &self.tdinfo.rtmr[rtmr_index * 6 .. (rtmr_index + 1) * 6];
         for i in rtmr {

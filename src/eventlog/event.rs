@@ -92,7 +92,7 @@ impl AAEventlog {
             HashAlgorithm::Sha256 => self.accumulate_hash::<Sha256>(),
             HashAlgorithm::Sha384 => self.accumulate_hash::<Sha384>(),
             HashAlgorithm::Sha512 => self.accumulate_hash::<Sha512>(),
-        }
+        };
 
         rtmr == result
     }

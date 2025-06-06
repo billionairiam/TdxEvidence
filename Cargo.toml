@@ -8,11 +8,12 @@ anyhow = "1.0.98"
 async-trait = "0.1.88"
 base64 = "0.22.1"
 const_format = "0.2.34"
-crypto = "0.5.1"
+crypto = { path = "./deps/crypto" }
 kbs-types = "0.11.0"
 log = "0.4.27"
 scroll = { version = "0.12.0", default-features = false, features = ["derive", "std"], optional = true }
 serde = "1.0.219"
+serde_json = "1.0.140"
 sha2 = "0.10.9"
 strum = "0.27.1"
 tdx-attest-rs = { git = "https://github.com/intel/SGXDataCenterAttestationPrimitives", tag = "DCAP_1.22", optional = true }

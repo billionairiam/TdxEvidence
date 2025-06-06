@@ -1,0 +1,29 @@
+[package]
+name = "crypto"
+version = "0.1.0"
+authors = ["The Attestation Agent Authors"]
+publish = false
+edition = "2021"
+
+[dependencies]
+aes-gcm = { workspace = true, optional = true }
+anyhow.workspace = true
+base64.workspace = true
+ctr = { workspace = true, optional = true }
+kbs-types.workspace = true
+openssl = { workspace = true, features = ["vendored"], optional = true}
+rand.workspace = true
+rsa = { workspace = true, optional = true }
+serde.workspace = true
+serde_json.workspace = true
+sha2.workspace = true
+strum.workspace = true
+zeroize.workspace = true
+
+[dev-dependencies]
+rstest.workspace = true
+
+[features]
+default = ["rust-crypto"]
+rust-crypto = ["dep:aes-gcm", "ctr", "rsa"]
+openssl = ["dep:openssl"]

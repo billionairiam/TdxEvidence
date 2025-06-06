@@ -1,9 +1,12 @@
 use self::rtmr::TdxRtmrEvent;
 
+
 use super::tsm_report::*;
 use super::Attester;
 use crate::utils::pad;
 use crate::InitDataResult;
+
+use anyhow::*;
 use report::TdReport;
 use scroll::Pread;
 use serde::{Deserialize, Serialize};
@@ -24,7 +27,7 @@ pub fn detect_platform() -> bool {
 fn get_quote_ioctl(report_data: &Vec<u8>) -> Result<Vec<u8>> {
     let tdx_report_data = tdx_attest_rs::tdx_report_data_t {
         d: report_data.as_slice().try_into().unwrap(),
-    }
+    };
 
     match tdx_attest_rs::tdx_att_get_quote(Some(tdx_report_data), None, None, 0) {
         (tdx_attest_rs::tdx_attest_error_t::TDX_ATTEST_SUCCESS, Some(q)) => Ok(q),
@@ -47,7 +50,7 @@ fn runtime_measurement_extend_available() -> bool {
     true
 }
 
-pub const DEFAULT_EVENTLOG_PATH: &str = "/run/attestation-agent/eventlog"
+pub const DEFAULT_EVENTLOG_PATH: &str = "/run/attestation-agent/eventlog";
 
 #[derive(Serialize, Deserialize)]
 struct TdxEvidence {
@@ -125,7 +128,7 @@ impl Attester for TdxAttester {
                 log::warn!("Read CC Eventlog failed: {:?}", e);
                 None
             }
-        }
+        };
 
         let aa_eventlog = match fs::read_to_string(DEFAULT_EVENTLOG_PATH) {
             Result::Ok(el) => Some(el),
@@ -133,7 +136,7 @@ impl Attester for TdxAttester {
                 log::warn!("Read AA Eventlog failed: {:?}", e);
                 None
             }
-        }
+        };
 
         let evidence = TdxEvidence {
             cc_eventlog,
