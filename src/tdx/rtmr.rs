@@ -52,7 +52,7 @@ impl From<TdxRtmrEvent> for Vec<u8> {
         let event_data_size = std::mem::size_of::<u8>() * val.event_data_size as usize;
         let res_size = std::mem::size_of::<u32>() * 3
             + std::mem::size_of::<u64>()
-            + std::mem::size_of::<[u8; 48]>
+            + std::mem::size_of::<[u8; 48]>()
             + event_data_size;
         let mut res = vec![0; res_size];
         unsafe {

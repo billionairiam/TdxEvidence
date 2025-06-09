@@ -29,7 +29,7 @@ fn get_quote_ioctl(report_data: &Vec<u8>) -> Result<Vec<u8>> {
         d: report_data.as_slice().try_into().unwrap(),
     };
 
-    match tdx_attest_rs::tdx_att_get_quote(Some(tdx_report_data), None, None, 0) {
+    match tdx_attest_rs::tdx_att_get_quote(Some(&tdx_report_data), None, None, 0) {
         (tdx_attest_rs::tdx_attest_error_t::TDX_ATTEST_SUCCESS, Some(q)) => Ok(q),
         (error_code, _) => Err(anyhow!(
             "TDX getquote ioctl: failed with error code: {:?}",
