@@ -7,6 +7,7 @@ use crate::utils::pad;
 use crate::InitDataResult;
 
 use anyhow::*;
+use base64::Engine;
 use report::TdReport;
 use scroll::Pread;
 use serde::{Deserialize, Serialize};
@@ -111,12 +112,12 @@ impl Attester for TdxAttester {
         let quote_bytes = TsmReportPath::new(TsmReportProvider::Tdx).map_or_else(
             |notsm| {
                 get_quote_ioctl(&report_data)
-                    .context(format!("TDX Attester: quote generation using ioctl() fallback failed after a TSM report error ({notsm})"));
+                    .context(format!("TDX Attester: quote generation using ioctl() fallback failed after a TSM report error ({notsm})"))
             },
             |tsm| {
                 tsm.attestation_report(TsmReportData::Tdx(report_data.clone()))
                     .context("TDX Attester: quote generation using TSM reports failed");
-            }
+            },
         )?;
 
         let engine = base64::engine::general_purpose::STANDARD;
