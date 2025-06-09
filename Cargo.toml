@@ -20,7 +20,7 @@ strum.workspace = true
 tdx-attest-rs = { workspace = true, optional = true }
 tempfile = { workspace = true, optional = true }
 thiserror = "2.0.12"
-tokio = { workspace = true, features = ["fs", "sync"] }
+tokio.workspace = true
 
 [workspace]
 resolver = "2"

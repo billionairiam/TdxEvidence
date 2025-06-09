@@ -1,8 +1,8 @@
-mod tdx;
+use aael::tdx::TdxAttester;
 
 #[tokio::main]
 async fn main() {
-    let attester = tdx::TdxAttester::default();
+    let attester = TdxAttester::default();
     let report_data: Vec<u8> = vec![0; 48];
     let evidence = attester.get_evidence(report_data).await;
     
