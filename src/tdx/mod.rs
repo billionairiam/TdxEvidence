@@ -1,10 +1,10 @@
 use self::rtmr::TdxRtmrEvent;
 
 
-use super::tsm_report::*;
-use super::Attester;
-use crate::utils::pad;
-use crate::InitDataResult;
+use aael::tsm_report::*;
+use aael::Attester;
+use aael::utils::pad;
+use aael::InitDataResult;
 
 use anyhow::*;
 use base64::Engine;
