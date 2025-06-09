@@ -63,7 +63,7 @@ impl TsmReportPath {
             return Err(TsmReportError::NoTsmReports);
         }
 
-        let p = tempdir_in(TsmReportPath).map_err(TsmReportError::Open)?;
+        let p = tempdir_in(TSM_REPORT_PATH).map_err(TsmReportError::Open)?;
 
         let path = p.into_path();
         check_tsm_report_provider(path.as_path(), wanted).inspect_err(|_| {

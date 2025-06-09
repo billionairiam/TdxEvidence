@@ -48,7 +48,7 @@ impl TdxRtmrEvent {
 
 impl From<TdxRtmrEvent> for Vec<u8> {
     fn from(val: TdxRtmrEvent) -> Self {
-        let event_prt = &val as *const TdxRtmrEvent as *const u8;
+        let event_ptr = &val as *const TdxRtmrEvent as *const u8;
         let event_data_size = std::mem::size_of::<u8>() * val.event_data_size as usize;
         let res_size = std::mem::size_of::<u32>() * 3
             + std::mem::size_of::<u64>()

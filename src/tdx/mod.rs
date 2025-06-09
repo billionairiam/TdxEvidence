@@ -110,7 +110,7 @@ impl Attester for TdxAttester {
 
         let quote_bytes = TsmReportPath::new(TsmReportProvider::Tdx).map_or_else(
             |notsm| {
-                get_quote_ioctl(&report_path)
+                get_quote_ioctl(&report_data)
                     .context(format!("TDX Attester: quote generation using ioctl() fallback failed after a TSM report error ({notsm})"));
             },
             |tsm| {
