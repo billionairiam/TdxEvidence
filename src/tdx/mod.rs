@@ -63,7 +63,7 @@ struct TdxEvidence {
     aa_eventlog: Option<String>,
 }
 
-#[derive(Debug, Debug)]
+#[derive(Debug, Default)]
 pub struct TdxAttester {}
 
 impl TdxAttester {

@@ -83,7 +83,7 @@ impl TsmReportPath {
             TsmReportData::Cca(inblob) => inblob,
             TsmReportData::Tdx(inblob) => inblob,
             TsmReportData::Sev(privlevel, inblob) => {
-                std::fs::write(report_path.join("privlevel"), contents)
+                std::fs::write(report_path.join("privlevel"), vec![privlevel])
                     .map_err(|e| TsmReportError::Access("privlevel", e))?;
                 inblob
             }
@@ -93,7 +93,7 @@ impl TsmReportPath {
             return Err(TsmReportError::InblobLen);
         }
 
-        std::fs::write(report_data.join("inblob"), contents)
+        std::fs::write(report_path.join("inblob"), report_data)
             .map_err(|e| TsmReportError::Access("inblob", e))?;
 
         let q = std::fs::read(report_path.join("outblob"))
