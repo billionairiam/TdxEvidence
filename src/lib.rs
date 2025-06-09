@@ -1,13 +1,17 @@
 use anyhow::*;
 use kbs_types::Tee;
 
-pub mod eventlog;
 pub mod sample;
-pub mod tsm_report;
 pub mod utils;
 
 #[cfg(feature = "tdx-attester")]
+pub mod eventlog;
+
+#[cfg(feature = "tdx-attester")]
 pub mod tdx;
+
+#[cfg(feature = "tdx-attester")]
+pub mod tsm_report;
 
 pub type BoxedAttester = Box<dyn Attester + Send + Sync>;
 
