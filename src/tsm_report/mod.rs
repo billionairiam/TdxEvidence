@@ -4,7 +4,7 @@ use strum::EnumString;
 use tempfile::tempdir_in;
 use thiserror::Error;
 
-const TSM_REPORT_PATH: &str = "/sys/kernel/config/tsm/report"
+const TSM_REPORT_PATH: &str = "/sys/kernel/config/tsm/report";
 
 #[derive(Error, Debug)]
 pub enum TsmReportError {
@@ -13,7 +13,7 @@ pub enum TsmReportError {
     #[error("Failed to create TSM Report path instance: {0}")]
     Open(#[from] std::io::Error),
     #[error("Failed to access TSM Report attribute: {0} ({1})")]
-    Access(&'static str, #[source] std::io::Error),,
+    Access(&'static str, #[source] std::io::Error),
     #[error("Failed to parse TSM Report attribute 'generation': {0}")]
     Parse(#[source] std::num::ParseIntError),
     #[error("Failed to open TSM Report path: missing provider {0:?} (provider={1:?})")]
@@ -58,7 +58,7 @@ impl Drop for TsmReportPath {
 }
 
 impl TsmReportPath {
-    pub fn new(wanted: TsmReportProvider) -> Result(Self, TsmReportError) {
+    pub fn new(wanted: TsmReportProvider) -> Result<Self, TsmReportError> {
         if !Path::new(TSM_REPORT_PATH).exists() {
             return Err(TsmReportError::NoTsmReports);
         }
@@ -87,7 +87,7 @@ impl TsmReportPath {
                     .map_err(|e| TsmReportError::Access("privlevel", e))?;
                 inblob
             }
-        }
+        };
 
         if report_data.is_empty() {
             return Err(TsmReportError::InblobLen);

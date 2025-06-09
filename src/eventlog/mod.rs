@@ -1,3 +1,5 @@
+use crate::BoxedAttester;
+
 pub mod event;
 
 use std::{
@@ -10,7 +12,7 @@ use std::{
 };
 
 use anyhow::{bail, Context, Result};
-use attester::BoxedAttester;
+
 use const_format::concatcp;
 
 use crypto::HashAlgorithm;
@@ -40,7 +42,7 @@ pub struct FileWriter {
 
 impl Writer for FileWriter {
     fn append(&mut self, entry: &LogEntry) -> Result<()> {
-        writeln!(self.file, "{entry}").content("failed to write log")?;
+        writeln!(self.file, "{entry}").context("failed to write log")?;
         self.file
             .flush()
             .context("failed to flush log to I/O media")?;
@@ -102,7 +104,7 @@ impl EventLog {
                                 aael.hash_algorithm,
                                 hex::encode(aael.init_state),
                                 width = aael.hash_algorithm.digest_len(),
-                            )
+                            ).as_bytes()
                         ),
                         false => alg.digest(aael.events[0].as_bytes()),
                     };
@@ -113,7 +115,7 @@ impl EventLog {
                 }
             }
 
-            let file = OpenOptions
+            let file = OpenOptions::new()
                 .append(true)
                 .open(EVENTLOG_PATH)
                 .context("open eventlog")?;
@@ -216,7 +218,7 @@ impl Display for LogEntry<'_> {
                 operation,
                 content,
             } => {
-                write!(f, "{} {} {}", domain, operation, content)
+                write!(f, "{} {} {}", domain, operation, content.0)
             }
             LogEntry::Init { hash_alg, value } => {
                 let (sha, init_value) = match hash_alg {
