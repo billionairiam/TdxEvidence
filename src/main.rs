@@ -1,4 +1,6 @@
+use aael::Attester; 
 use aael::tdx::TdxAttester;
+
 
 #[tokio::main]
 async fn main() {

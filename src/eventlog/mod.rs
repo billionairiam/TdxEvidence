@@ -1,3 +1,4 @@
+mod event;
 use crate::BoxedAttester;
 
 use std::{
