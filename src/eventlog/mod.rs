@@ -1,7 +1,5 @@
 use crate::BoxedAttester;
 
-pub mod event;
-
 use std::{
     fmt::Display,
     fs::{File, OpenOptions},
