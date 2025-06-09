@@ -116,7 +116,7 @@ impl Attester for TdxAttester {
             },
             |tsm| {
                 tsm.attestation_report(TsmReportData::Tdx(report_data.clone()))
-                    .context("TDX Attester: quote generation using TSM reports failed");
+                    .context("TDX Attester: quote generation using TSM reports failed")
             },
         )?;
 
