@@ -5,7 +5,7 @@ use aael::tdx::*;
 
 use anyhow::*;
 use base64::Engine;
-use serde_json::{Map, Value};
+use serde_json::{Map, Value, to_string_pretty};
 use std::str::FromStr;
 use log::{debug, warn, info};
 
@@ -279,7 +279,10 @@ async fn main() -> Result<()> {
         }
     };
 
-    generate_parsed_claim(quote, ccel_option, aael_option)?;
+    let claims = generate_parsed_claim(quote, ccel_option, aael_option)?;
+    let claims = generate_parsed_claim(quote, ccel_option, aael_option)?;
+    let readable_json = to_string_pretty(&claims)?;
+    println!("{}", readable_json);
 
     Ok(())
 }
