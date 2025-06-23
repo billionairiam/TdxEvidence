@@ -3,8 +3,34 @@ use std::str::FromStr;
 use anyhow::{anyhow, bail, Context, Result};
 use crypto::HashAlgorithm;
 use sha2::{digest::FixedOutput, Digest, Sha256, Sha384, Sha512};
+use serde_json::{Map, Value};
+use serde::{Deserialize, Serialize};
 
 #[derive(Clone)]
+pub struct AAEvent {
+    pub domain: String,
+    pub operation: String,
+    pub content: String,
+}
+
+impl FromStr for AAEvent {
+    type Err = anyhow::Error;
+
+    fn from_str(input: &str) -> Result<Self> {
+        let input_trimed = input.trim_end();
+        let sections: Vec<&str> = input_trimed.split(' ').collect();
+        if sections.len() != 3 {
+            bail!("Illegal AA event entry format. Should be `<domain> <operation> <content>`");
+        }
+        Ok(Self {
+            domain: sections[0].into(),
+            operation: sections[1].into(),
+            content: sections[2].into(),
+        })
+    }
+}
+
+#[derive(Clone, Deserialize, Serialize)]
 pub struct AAEventlog {
     pub hash_algorithm: HashAlgorithm,
     pub init_state: Vec<u8>,
@@ -95,5 +121,28 @@ impl AAEventlog {
         };
 
         rtmr == result
+    }
+
+    pub fn to_parsed_claims(&self) -> Map<String, Value> {
+        let mut aael = Map::new();
+        for eventlog in &self.events {
+            let aaevent = eventlog.parse::<AAEvent>().unwrap();
+            let key = format!("{}/{}", aaevent.domain, aaevent.operation);
+            let item = Value::String(aaevent.content.clone());
+            match aael.get_mut(&key) {
+                Some(value) => value
+                    .as_array_mut()
+                    .expect("Only array can be inserted")
+                    .push(item),
+                None => {
+                    // This insertion will ensure the value in AAEL always be
+                    // `Array`s. This will make `as_array_mut()` always result
+                    // in `Some`.
+                    aael.insert(key, Value::Array(vec![item]));
+                }
+            }
+        }
+
+        aael
     }
 }

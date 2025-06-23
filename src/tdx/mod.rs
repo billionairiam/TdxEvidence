@@ -7,15 +7,20 @@ use crate::InitDataResult;
 
 use anyhow::*;
 use base64::Engine;
-use report::TdReport;
 use scroll::Pread;
 use serde::{Deserialize, Serialize};
 use std::fs;
 use std::path::Path;
 use tdx_attest_rs::tdx_report_t;
 
-mod report;
-mod rtmr;
+pub mod report;
+pub mod rtmr;
+pub mod quote;
+pub mod claims;
+
+pub use quote::*;
+pub use report::*;
+pub use claims::*;
 
 const TDX_REPORT_DATA_SIZE: usize = 64;
 const CCEL_PATH: &str = "/sys/firmware/acpi/tables/data/CCEL";
@@ -53,14 +58,14 @@ fn runtime_measurement_extend_available() -> bool {
 pub const DEFAULT_EVENTLOG_PATH: &str = "/run/attestation-agent/eventlog";
 
 #[derive(Serialize, Deserialize)]
-struct TdxEvidence {
+pub struct TdxEvidence {
     // Base64 encoded CC Eventlog ACPI table
     // refer to https://uefi.org/specs/ACPI/6.5/05_ACPI_Software_Programming_Model.html#cc-event-log-acpi-table.
-    cc_eventlog: Option<String>,
+    pub cc_eventlog: Option<String>,
     // Base64 encoded TD quote.
-    quote: String,
+    pub quote: String,
     // Eventlog of Attestation Agent
-    aa_eventlog: Option<String>,
+    pub aa_eventlog: Option<String>,
 }
 
 #[derive(Debug, Default)]

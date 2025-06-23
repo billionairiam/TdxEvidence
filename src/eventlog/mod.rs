@@ -1,4 +1,9 @@
-mod event;
+pub mod event;
+pub mod eventlog;
+
+pub use self::eventlog::*;
+pub use self::event::*;
+
 use crate::BoxedAttester;
 
 use std::{
@@ -15,7 +20,7 @@ use anyhow::{bail, Context, Result};
 use const_format::concatcp;
 
 use crypto::HashAlgorithm;
-use event::AAEventlog;
+pub use event::AAEventlog;
 use log::debug;
 
 /// AA's eventlog will be put into this parent directory

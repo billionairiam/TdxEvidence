@@ -65,7 +65,7 @@ impl TsmReportPath {
 
         let p = tempdir_in(TSM_REPORT_PATH).map_err(TsmReportError::Open)?;
 
-        let path = p.into_path();
+        let path = p.keep();
         check_tsm_report_provider(path.as_path(), wanted).inspect_err(|_| {
             let _ = std::fs::remove_dir(path.as_path());
         })?;

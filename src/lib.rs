@@ -15,6 +15,8 @@ pub mod tsm_report;
 
 pub type BoxedAttester = Box<dyn Attester + Send + Sync>;
 
+pub type TeeEvidenceParsedClaim = serde_json::Value;
+
 impl TryFrom<Tee> for BoxedAttester {
     type Error = anyhow::Error;
 
