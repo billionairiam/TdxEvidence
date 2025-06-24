@@ -1,4 +1,4 @@
-# EVIDENCE
+# TdxEvidence
 ```
-cargo build --features tdx-attester
+cargo run --features tdx-attester
 ```
