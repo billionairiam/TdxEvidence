@@ -280,7 +280,6 @@ async fn main() -> Result<()> {
     };
 
     let claims = generate_parsed_claim(quote, ccel_option, aael_option)?;
-    let claims = generate_parsed_claim(quote, ccel_option, aael_option)?;
     let readable_json = to_string_pretty(&claims)?;
     println!("{}", readable_json);
 
