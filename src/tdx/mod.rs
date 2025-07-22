@@ -49,10 +49,10 @@ fn get_quote_ioctl(report_data: &Vec<u8>) -> Result<Vec<u8>> {
 // not able to do it.
 fn runtime_measurement_extend_available() -> bool {
     if Path::new("/sys/kernel/config/tsm/report").exists() {
-        return false;
+        return true;
     }
 
-    true
+    false
 }
 
 pub const DEFAULT_EVENTLOG_PATH: &str = "/run/attestation-agent/eventlog";
