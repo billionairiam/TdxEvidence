@@ -1,13 +1,18 @@
-use aael::Attester; 
+use aael::Attester;
 use aael::eventlog::*;
 use aael::TeeEvidenceParsedClaim;
 use aael::tdx::*;
+use aael::detect_tee_type;
+use aael::BoxedAttester;
 
 use anyhow::*;
 use base64::Engine;
+use eventlog_rs::Eventlog;
 use serde_json::{Map, Value, to_string_pretty};
 use std::str::FromStr;
 use log::{debug, warn, info};
+use std::sync::Arc;
+use crypto::HashAlgorithm;
 
 macro_rules! parse_claim {
     ($map_name: ident, $key_name: literal, $field: ident) => {
@@ -223,10 +228,19 @@ fn parse_ccel(ccel: CcEventLog, ccel_map: &mut Map<String, Value>) -> Result<()>
 
 #[tokio::main]
 async fn main() -> Result<()> {
-    let attester = TdxAttester::default();
+    let tee = detect_tee_type();
+    let attester: BoxedAttester = tee.try_into()?;
+    let attester = Arc::new(attester);
+    let mut el = EventLog::new(attester.clone(), HashAlgorithm::Sha384, 17).await.unwrap();
     let report_data: Vec<u8> = vec![0; 48];
-    let evidence = attester.get_evidence(report_data).await.unwrap();
 
+    let ev = LogEntry::Event {
+        domain: "one",
+        operation: "two",
+        content: "three".try_into().unwrap(),
+    };
+    el.extend_entry(ev, 17).await.unwrap();
+    let evidence = attester.get_evidence(report_data).await.unwrap();
     let evidence: TdxEvidence = serde_json::from_str(evidence.as_str())?;
     if evidence.quote.is_empty() {
         bail!("TDX Quote is empty.");
