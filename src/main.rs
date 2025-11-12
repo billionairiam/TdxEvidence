@@ -13,13 +13,15 @@ use std::sync::Arc;
 
 #[tokio::main]
 async fn main() -> Result<()> {
+    env_logger::init();
+
     let tee = detect_tee_type();
     let attester: BoxedAttester = tee.try_into()?;
     let attester = Arc::new(attester);
+
     let mut el = EventLog::new(attester.clone(), HashAlgorithm::Sha384, 17)
         .await
         .unwrap();
-    let report_data: Vec<u8> = vec![0; 48];
 
     let ev = LogEntry::Event {
         domain: "one",
@@ -27,6 +29,8 @@ async fn main() -> Result<()> {
         content: "three".try_into().unwrap(),
     };
     el.extend_entry(ev, 17).await.unwrap();
+
+    let report_data: Vec<u8> = vec![0; 48];
     let evidence = attester.get_evidence(report_data).await.unwrap();
     let evidence: TdxEvidence = serde_json::from_str(evidence.as_str())?;
     if evidence.quote.is_empty() {
