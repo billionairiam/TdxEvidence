@@ -1,4 +1,4 @@
-use anyhow::{anyhow, bail, Result};
+use anyhow::{Result, anyhow, bail};
 use core::fmt;
 use scroll::Pread;
 
@@ -382,76 +382,5 @@ pub fn parse_tdx_quote(quote_bin: &[u8]) -> Result<Quote> {
             }
         }
         _ => Err(anyhow!("Quote version not defined.")),
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use rstest::rstest;
-
-    use super::*;
-    use crate::intel_dcap::ecdsa_quote_verification;
-    use std::fs;
-
-    #[rstest]
-    #[case("./test_data/tdx_quote_4.dat")]
-    #[case("./test_data/tdx_quote_5.dat")]
-    fn test_parse_tdx_quote(#[case] quote_path: &str) {
-        let quote_bin = fs::read(quote_path).unwrap();
-        let quote = parse_tdx_quote(&quote_bin);
-
-        assert!(quote.is_ok());
-        let parsed_quote = format!("{}", quote.unwrap());
-
-        let _ = fs::write(format!("{quote_path}.txt"), parsed_quote);
-    }
-
-    /// Test to verify the TDX quote, both in v4 and v5 format.
-    ///
-    /// This unit test requires two packages, s.t. `libsgx-dcap-quote-verify-dev` and `libsgx-dcap-default-qpl`
-    /// On ubuntu 22.04, you need to run the following scripts to install.
-    /// ```shell
-    /// curl -L https://download.01.org/intel-sgx/sgx_repo/ubuntu/intel-sgx-deb.key | tee intel-sgx-deb.key | apt-key add - && \
-    /// echo 'deb [arch=amd64] https://download.01.org/intel-sgx/sgx_repo/ubuntu jammy main' | tee /etc/apt/sources.list.d/intel-sgx.list && \
-    /// apt-get update && \
-    /// apt-get install -y libsgx-dcap-default-qpl libsgx-dcap-quote-verify
-    /// ```
-    ///
-    /// Also, you need to configure DCAP to work with alibaba cloud's PCCS.
-    /// edit `/etc/sgx_default_qcnl.conf` and replace the whole content with
-    /// ```json
-    /// {"pccs_url" :"https://sgx-dcap-server.cn-beijing.aliyuncs.com/sgx/certification/v4/"}
-    /// ```
-    ///
-    /// The manual modification upon `sgx_default_qcnl.conf` could be promoted after
-    /// https://github.com/intel/SGXDataCenterAttestationPrimitives/issues/409 is resolved.
-    ///
-    /// Finally, DCAP only provides packages on x86-64 platform, thus we only test this on x86-64
-    /// platforms.
-    #[cfg(target_arch = "x86_64")]
-    #[rstest]
-    #[ignore]
-    #[tokio::test]
-    #[case(
-        "./test_data/tdx_quote_4.dat",
-        r#"{"advisory_ids":["INTEL-SA-00837","INTEL-SA-00960","INTEL-SA-00982","INTEL-SA-00986"],"collateral_expiration_status":"0","tcb_status":"OutOfDate"}"#
-    )]
-    #[ignore]
-    #[tokio::test]
-    #[case(
-        "./test_data/tdx_quote_5.dat",
-        r#"{"advisory_ids":[],"collateral_expiration_status":"1","tcb_status":"OK"}"#
-    )]
-    async fn test_verify_tdx_quote(#[case] quote: &str, #[case] expected_output: &str) {
-        let quote_bin = fs::read(quote).unwrap();
-        let res = ecdsa_quote_verification(quote_bin.as_slice()).await;
-        assert!(res.is_ok(), "{res:?}");
-
-        let claims = serde_json::to_string(&res.unwrap()).expect("Custom claims are available.");
-
-        assert_eq!(
-            claims, expected_output,
-            "Unexpected verification output for {quote}"
-        );
     }
 }

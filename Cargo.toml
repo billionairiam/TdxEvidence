@@ -54,6 +54,7 @@ tokio = { version = "1.42", features = ["full"] }
 zeroize = "1.5.7"
 
 [features]
+default = ["tdx-attester"]
 tsm-report = ["tempfile"]
 tdx-attester = ["scroll", "tsm-report", "tdx-attest-rs"]
 scroll = ["dep:scroll"]
