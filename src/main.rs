@@ -96,7 +96,7 @@ async fn main() -> Result<()> {
                 fs::write(&path, evidence.quote.clone())?;
                 info!("Quote saved to {}", path);
             } else {
-                println!("{}", to_string_pretty(&evidence)?);
+                println!("{}", to_string_pretty(&evidence.quote)?);
             }
         }
         Commands::Parse(args) => {
