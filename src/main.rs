@@ -3,8 +3,8 @@ use attest_cli::detect_tee_type;
 use attest_cli::eventlog::*;
 use attest_cli::tdx::*;
 
-use anyhow::*;
-use base64::Engine;
+use anyhow::{Context, Result, bail};
+use base64::{Engine as _, engine::general_purpose::STANDARD};
 use clap::{Args, Parser, Subcommand};
 use crypto::HashAlgorithm;
 use env_logger::Env;
@@ -103,12 +103,28 @@ async fn main() -> Result<()> {
         }
         Commands::Parse(args) => {
             info!("Parsing quote from file: {}", &args.path);
-            let quote_b64 = fs::read_to_string(&args.path)
+
+            let file_content_bytes = fs::read(&args.path)
                 .with_context(|| format!("Failed to read quote file from '{}'", &args.path))?;
 
-            let quote_bin = base64::engine::general_purpose::STANDARD
-                .decode(quote_b64.trim())
-                .context("Failed to decode base64 quote")?;
+            let trimmed_bytes: Vec<u8> = file_content_bytes
+                .iter()
+                .cloned()
+                .filter(|b| !b.is_ascii_whitespace())
+                .collect();
+
+            let quote_bin = match STANDARD.decode(&trimmed_bytes) {
+                // 3. 解码成功 -> 文件是 Base64 格式
+                Ok(decoded_bytes) => {
+                    info!("Successfully decoded quote from Base64 format.");
+                    decoded_bytes // 使用解码后的二进制数据
+                }
+                // 4. 解码失败 -> 假设文件是原始二进制格式
+                Err(_) => {
+                    info!("Failed to decode as Base64, assuming raw binary format.");
+                    file_content_bytes // 直接使用从文件读取的原始字节
+                }
+            };
 
             let quote = parse_tdx_quote(&quote_bin)?;
 
