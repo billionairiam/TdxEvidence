@@ -83,20 +83,20 @@ async fn main() -> Result<()> {
 
                 el.extend_entry(ev, 17).await?;
                 info!("Event log extended successfully.");
+            }
 
-                let report_data: Vec<u8> = vec![0; 48];
-                let evidence_str = attester.get_evidence(report_data).await?;
-                let evidence: TdxEvidence = serde_json::from_str(&evidence_str)?;
-                if evidence.quote.is_empty() {
-                    bail!("TDX Quote is empty.");
-                }
+            let report_data: Vec<u8> = vec![0; 48];
+            let evidence_str = attester.get_evidence(report_data).await?;
+            let evidence: TdxEvidence = serde_json::from_str(&evidence_str)?;
+            if evidence.quote.is_empty() {
+                bail!("TDX Quote is empty.");
+            }
 
-                if let Some(path) = args.save {
-                    fs::write(&path, evidence.quote.clone())?;
-                    info!("Quote saved to {}", path);
-                } else {
-                    println!("{}", to_string_pretty(&evidence)?);
-                }
+            if let Some(path) = args.save {
+                fs::write(&path, evidence.quote.clone())?;
+                info!("Quote saved to {}", path);
+            } else {
+                println!("{}", to_string_pretty(&evidence)?);
             }
         }
         Commands::Parse(args) => {

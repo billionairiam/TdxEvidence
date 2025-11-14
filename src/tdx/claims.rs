@@ -1,57 +1,3 @@
-// Copyright (c) 2023 Alibaba Cloud
-//
-// SPDX-License-Identifier: Apache-2.0
-//
-
-//! This module helps parse all fields inside a TDX Quote and CCEL and
-//! serialize them into a JSON. The format will look like
-//! ```json
-//! {
-//!  "td_attributes": {
-//!    "debug": true,
-//!    "key_locker": false,
-//!    "perfmon": false,
-//!    "protection_keys": false,
-//!    "septve_disable": true
-//!  },
-//!  "ccel": {
-//!    "kernel": "5b7aa6572f649714ff00b6a2b9170516a068fd1a0ba72aa8de27574131d454e6396d3bfa1727d9baf421618a942977fa",
-//!    "kernel_parameters": {
-//!      "console": "hvc0",
-//!      "root": "/dev/vda1",
-//!      "rw": null
-//!    }
-//!  },
-//!  "quote": {
-//!    "header":{
-//!        "version": "0400",
-//!        "att_key_type": "0200",
-//!        "tee_type": "81000000",
-//!        "reserved": "00000000",
-//!        "vendor_id": "939a7233f79c4ca9940a0db3957f0607",
-//!        "user_data": "d099bfec0a477aa85a605dceabf2b10800000000"
-//!    },
-//!    "body":{
-//!        "mr_config_id": "000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-//!        "mr_owner": "000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-//!        "mr_owner_config": "000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-//!        "mr_td": "705ee9381b8633a9fbe532b52345e8433343d2868959f57889d84ca377c395b689cac1599ccea1b7d420483a9ce5f031",
-//!        "mrsigner_seam": "000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-//!        "report_data": "7c71fe2c86eff65a7cf8dbc22b3275689fd0464a267baced1bf94fc1324656aeb755da3d44d098c0c87382f3a5f85b45c8a28fee1d3bdb38342bf96671501429",
-//!        "seam_attributes": "0000000000000000",
-//!        "td_attributes": "0100001000000000",
-//!        "mr_seam": "2fd279c16164a93dd5bf373d834328d46008c2b693af9ebb865b08b2ced320c9a89b4869a9fab60fbe9d0c5a5363c656",
-//!        "tcb_svn": "03000500000000000000000000000000",
-//!        "xfam": "e742060000000000",
-//!        "rtmr_0": "000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-//!        "rtmr_1": "000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-//!        "rtmr_2": "000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-//!        "rtmr_3": "000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
-//!    }
-//!  }
-//!}
-//! ```
-
 use anyhow::Result;
 use bitflags::{Flags, bitflags};
 use byteorder::{LittleEndian, ReadBytesExt};
@@ -59,17 +5,11 @@ use log::{debug, warn};
 use serde_json::{Map, Value};
 use thiserror::Error;
 
-// use crate::{eventlog::eventlog::AAEventlog, tdx::quote::QuoteV5Body, TeeEvidenceParsedClaim};
 use super::quote::*;
 use crate::TeeEvidenceParsedClaim;
 use crate::eventlog::AAEventlog;
 use crate::eventlog::CcEventLog;
 use crate::eventlog::MeasuredEntity;
-
-// use crate::{
-//     eventlog::eventlog::{CcEventLog, MeasuredEntity},
-//     tdx::quote::Quote,
-// };
 
 macro_rules! parse_claim {
     ($map_name: ident, $key_name: literal, $field: ident) => {
@@ -181,15 +121,16 @@ pub fn generate_parsed_claim(
         }
     }
 
+    let mut claims = Map::new();
+
     // Claims from CC EventLog.
     let mut ccel_map = Map::new();
     if let Some(ccel) = cc_eventlog {
         parse_ccel(ccel, &mut ccel_map)?;
+        parse_claim!(claims, "ccel", ccel_map);
     }
 
     let td_attributes = parse_td_attributes(quote.td_attributes())?;
-
-    let mut claims = Map::new();
 
     // Claims from AA eventlog
     if let Some(aael) = aa_eventlog {
@@ -198,11 +139,9 @@ pub fn generate_parsed_claim(
     }
 
     parse_claim!(claims, "quote", quote_map);
-    parse_claim!(claims, "ccel", ccel_map);
     parse_claim!(claims, "td_attributes", td_attributes);
 
     parse_claim!(claims, "report_data", quote.report_data());
-    parse_claim!(claims, "init_data", quote.mr_config_id());
 
     let claims_str = serde_json::to_string_pretty(&claims)?;
     debug!("Parsed Evidence claims map: \n{claims_str}\n");
