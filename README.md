@@ -2,7 +2,7 @@
 
 **A Command-Line Utility for Intel TDX Attestation**
 
-[![License: MIT OR Apache-2.0](https://img.shields.io/badge/license-MIT%20OR%20Apache--2.0-blue.svg)](https://opensource.org/licenses/MIT)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
 `attest-cli` is a powerful and easy-to-use command-line tool for generating and parsing attestation quotes within an Intel Trust Domain Extensions (TDX) environment. It serves as a practical interface to the underlying attestation mechanisms, allowing developers and operators to easily create and inspect evidence of a workload's integrity.
 
