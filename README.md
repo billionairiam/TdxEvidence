@@ -6,8 +6,6 @@
 
 `attest-cli` is a powerful and easy-to-use command-line tool for generating and parsing attestation quotes within an Intel Trust Domain Extensions (TDX) environment. It serves as a practical interface to the underlying attestation mechanisms, allowing developers and operators to easily create and inspect evidence of a workload's integrity.
 
-This tool is built in Rust and leverages the `aael` library from the [Confidential Containers](https://github.com/confidential-containers/attestation-agent) project.
-
 ## What is Attestation?
 
 In a confidential computing environment like Intel TDX, attestation is the process by which a trusted execution environment (the "TD") proves its identity and the integrity of the software running inside it to a remote party (the "Relying Party"). The core artifact of this process is the **Quote**, a cryptographically signed data structure containing measurements of the TD's initial state and runtime events.
