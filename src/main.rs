@@ -1,7 +1,7 @@
-use aael::BoxedAttester;
-use aael::detect_tee_type;
-use aael::eventlog::*;
-use aael::tdx::*;
+use attest_cli::BoxedAttester;
+use attest_cli::detect_tee_type;
+use attest_cli::eventlog::*;
+use attest_cli::tdx::*;
 
 use anyhow::*;
 use base64::Engine;

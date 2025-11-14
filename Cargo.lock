@@ -3,34 +3,6 @@
 version = 4
 
 [[package]]
-name = "aael"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "async-trait",
- "base64",
- "bitflags 2.9.1",
- "byteorder",
- "clap 4.5.51",
- "const_format",
- "crypto",
- "env_logger 0.11.8",
- "eventlog-rs",
- "hex",
- "kbs-types 0.11.0",
- "log",
- "scroll",
- "serde",
- "serde_json",
- "sha2",
- "strum",
- "tdx-attest-rs",
- "tempfile",
- "thiserror",
- "tokio",
-]
-
-[[package]]
 name = "addr2line"
 version = "0.24.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -163,6 +135,34 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn 2.0.101",
+]
+
+[[package]]
+name = "attest-cli"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "async-trait",
+ "base64",
+ "bitflags 2.9.1",
+ "byteorder",
+ "clap 4.5.51",
+ "const_format",
+ "crypto",
+ "env_logger 0.11.8",
+ "eventlog-rs",
+ "hex",
+ "kbs-types 0.11.0",
+ "log",
+ "scroll",
+ "serde",
+ "serde_json",
+ "sha2",
+ "strum",
+ "tdx-attest-rs",
+ "tempfile",
+ "thiserror",
+ "tokio",
 ]
 
 [[package]]
