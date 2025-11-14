@@ -7,6 +7,7 @@ use anyhow::*;
 use base64::Engine;
 use clap::{Args, Parser, Subcommand};
 use crypto::HashAlgorithm;
+use env_logger::Env;
 use log::info;
 use serde::Deserialize;
 use serde_json::to_string_pretty;
@@ -57,7 +58,8 @@ struct ParseArgs {
 
 #[tokio::main]
 async fn main() -> Result<()> {
-    env_logger::init();
+    env_logger::Builder::from_env(Env::default().default_filter_or("info")).init();
+
     let cli = Cli::parse();
 
     match cli.command {

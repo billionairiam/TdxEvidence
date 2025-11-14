@@ -1,9 +1,9 @@
 use self::rtmr::TdxRtmrEvent;
 
-use crate::tsm_report::*;
 use crate::Attester;
-use crate::utils::pad;
 use crate::InitDataResult;
+use crate::tsm_report::*;
+use crate::utils::pad;
 
 use anyhow::*;
 use base64::Engine;
@@ -13,14 +13,14 @@ use std::fs;
 use std::path::Path;
 use tdx_attest_rs::tdx_report_t;
 
+pub mod claims;
+pub mod quote;
 pub mod report;
 pub mod rtmr;
-pub mod quote;
-pub mod claims;
 
+pub use claims::*;
 pub use quote::*;
 pub use report::*;
-pub use claims::*;
 
 const TDX_REPORT_DATA_SIZE: usize = 64;
 const CCEL_PATH: &str = "/sys/firmware/acpi/tables/data/CCEL";
@@ -73,7 +73,7 @@ pub struct TdxAttester {}
 
 impl TdxAttester {
     fn get_report() -> Result<TdReport> {
-        let mut report = tdx_report_t { d : [0; 1024]};
+        let mut report = tdx_report_t { d: [0; 1024] };
         match tdx_attest_rs::tdx_att_get_report(None, &mut report) {
             tdx_attest_rs::tdx_attest_error_t::TDX_ATTEST_SUCCESS => {
                 log::debug!("Successfully got report")
@@ -130,7 +130,7 @@ impl Attester for TdxAttester {
         let cc_eventlog = match std::fs::read(CCEL_PATH) {
             Result::Ok(el) => Some(engine.encode(el)),
             Result::Err(e) => {
-                log::warn!("Read CC Eventlog failed: {:?}", e);
+                log::debug!("Read CC Eventlog failed: {:?}", e);
                 None
             }
         };
@@ -138,7 +138,7 @@ impl Attester for TdxAttester {
         let aa_eventlog = match fs::read_to_string(DEFAULT_EVENTLOG_PATH) {
             Result::Ok(el) => Some(el),
             Result::Err(e) => {
-                log::warn!("Read AA Eventlog failed: {:?}", e);
+                log::debug!("Read AA Eventlog failed: {:?}", e);
                 None
             }
         };
