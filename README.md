@@ -1,48 +1,162 @@
-# TdxEvidence
+# attest-cli
+
+**A Command-Line Utility for Intel TDX Attestation**
+
+[![License: MIT OR Apache-2.0](https://img.shields.io/badge/license-MIT%20OR%20Apache--2.0-blue.svg)](https://opensource.org/licenses/MIT)
+
+`attest-cli` is a powerful and easy-to-use command-line tool for generating and parsing attestation quotes within an Intel Trust Domain Extensions (TDX) environment. It serves as a practical interface to the underlying attestation mechanisms, allowing developers and operators to easily create and inspect evidence of a workload's integrity.
+
+This tool is built in Rust and leverages the `aael` library from the [Confidential Containers](https://github.com/confidential-containers/attestation-agent) project.
+
+## What is Attestation?
+
+In a confidential computing environment like Intel TDX, attestation is the process by which a trusted execution environment (the "TD") proves its identity and the integrity of the software running inside it to a remote party (the "Relying Party"). The core artifact of this process is the **Quote**, a cryptographically signed data structure containing measurements of the TD's initial state and runtime events.
+
+`attest-cli` simplifies the two main operations involving quotes:
+1.  **Generation**: Creating a new quote that reflects the current state of the machine.
+2.  **Parsing**: Decoding an existing quote to inspect its contents and verify its claims.
+
+## Features
+
+*   **Generate TDX Evidence**: Create a complete evidence structure, including the TDX quote and event logs.
+*   **Extend Runtime Measurements**: Include custom application events in the attestation report by extending the Runtime Measurement Registers (RTMRs).
+*   **Save & Print**: Save the generated quote to a file or print the full evidence to standard output.
+*   **Parse and Display**: Read a base64-encoded quote from a file and display its contents in a human-readable JSON format.
+
+## Prerequisites
+
+*   **To generate quotes**: This tool **must be run inside an Intel TDX confidential virtual machine** that is properly configured for attestation.
+*   **To parse quotes**: Parsing can be done on any system (Linux, macOS, Windows).
+*   **Rust Toolchain**: You need `rustc` and `cargo` installed. You can get them from [rustup.rs](https://rustup.rs/).
+
+## Installation
+
+### From Source
+
+1.  Clone the repository:
+    ```bash
+    git clone https://github.com/billionairiam/attest-cli.git
+    cd attest-cli
+    ```
+2.  Build the project:
+    ```bash
+    cargo build --release
+    ```
+3.  The binary will be located at `target/release/attest-cli`. You can add this to your system's `PATH` for easier access.
+
+## Usage
+
+`attest-cli` is structured with subcommands. The two main commands are `quote` and `parse`.
+
+### Getting Help
+
+To see a full list of commands and options, use:
+
+```bash
+attest-cli --help
 ```
-cargo run --features tdx-attester
+
+To get help for a specific subcommand:
+
+```bash
+attest-cli quote --help
+attest-cli parse --help
 ```
+
+---
+
+### `quote` - Generate Attestation Evidence
+
+This command generates new attestation evidence from within the TDX environment.
+
+**1. Generate evidence and print to console:**
+
+By default, the `quote` command will generate evidence and print the full JSON structure (including the quote and event logs) to standard output.
+
+```bash
+attest-cli quote
 ```
-{
-  "ccel": {
-    "cmdline": "bfaee882f32c4ff09ba5cfac2bef4d14dd55d5706baf51ef05ea22fbb9b05a7bdc65d523d52629a6ef6fcb2a10661359",
-    "initrd": "ba11695dc165cd68ce36e2df19290265208a9ef2aaee10540e076db93cfbe00fa51ca6c01522bff8585cde062b7796e6"
-  },
-  "init_data": "000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-  "quote": {
-    "body": {
-      "mr_config_id": "000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-      "mr_owner": "000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-      "mr_owner_config": "000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-      "mr_seam": "9790d89a10210ec6968a773cee2ca05b5aa97309f36727a968527be4606fc19e6f73acce350946c9d46a9bf7a63f8430",
-      "mr_td": "91eb2b44d141d4ece09f0c75c2c53d247a3c68edd7fafe8a3520c942a604a407de03ae6dc5f87f27428b2538873118b7",
-      "mrsigner_seam": "000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-      "report_data": "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-      "rtmr_0": "a9979abe42f6a41d2f4a4d74c1c1de7390df1fe99b878a6ed027177964ca41a6fe9b69050c2f131a973526e54cec633e",
-      "rtmr_1": "5b865866aecc580308ef5a3527a893cc84c44cba58eab945819983910b9681946d80ec4479b536316cf2b225fb55db71",
-      "rtmr_2": "58fb7070bb9058dd4262a36414cadd0e303211b623f2145baadf464fadca4678e8c64fcab43aa89d42dcd6765ba85d06",
-      "rtmr_3": "000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-      "seam_attributes": "0000000000000000",
-      "tcb_svn": "04010200000000000000000000000000",
-      "td_attributes": "0000001000000000",
-      "xfam": "e702060000000000"
-    },
-    "header": {
-      "att_key_type": "0200",
-      "reserved": "00000000",
-      "tee_type": "81000000",
-      "user_data": "e59b8342cdd9bbe20321d2e5be662eba00000000",
-      "vendor_id": "939a7233f79c4ca9940a0db3957f0607",
-      "version": "0400"
-    }
-  },
-  "report_data": "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-  "td_attributes": {
-    "debug": false,
-    "key_locker": false,
-    "perfmon": false,
-    "protection_keys": false,
-    "septve_disable": true
-  }
-}
+
+**2. Generate and save the quote to a file:**
+
+Use the `-s` or `--save` flag to save the base64-encoded quote to a file.
+
+*   Save to the default file (`quote.bin`):
+    ```bash
+    attest-cli quote --save
+    ```
+
+*   Save to a custom file path:
+    ```bash
+    attest-cli quote --save /path/to/my-quote.txt
+    ```
+
+**3. Extend RTMRs with a custom event:**
+
+Use the `-e` or `--extend` flag to include a custom measurement in the quote. This is useful for attesting to application-specific events, like loading a configuration or a data payload. The argument must be a valid JSON string.
+
+```bash
+# Note the single quotes around the JSON to prevent shell interpretation
+attest-cli quote -e '{"domain":"my-app","operation":"load-config","content":"config_file_hash_abc123"}'
 ```
+
+**4. Combine options:**
+
+You can combine flags to perform a more complex operation, such as extending the measurements and saving the resulting quote.
+
+```bash
+attest-cli quote --extend '{"domain":"web-server","operation":"start","content":"v1.2.3"}' --save server-startup.quote
+```
+
+---
+
+### `parse` - Parse an Existing Quote
+
+This command takes a file containing a base64-encoded quote, decodes it, and prints its contents in a human-readable format.
+
+```bash
+attest-cli parse <PATH_TO_QUOTE_FILE>
+```
+
+**Example:**
+
+If you have a quote saved in `server-startup.quote`, you can parse it like this:
+
+```bash
+attest-cli parse server-startup.quote
+```
+
+This will output a JSON object containing the parsed fields from the quote, such as RTMR values, TCB information, and other security-critical data.
+
+## Example Workflow
+
+Here is a common end-to-end workflow:
+
+1.  **Inside the TDX VM**, generate a quote that attests to starting a specific application version. Save it to a file named `app.quote`.
+
+    ```bash
+    attest-cli quote -s app.quote -e '{"domain":"billing-service","operation":"deploy","content":"sha256:f12a..."}'
+    ```
+
+2.  Transfer the `app.quote` file to an external machine for verification.
+
+3.  **On the external machine**, parse the quote to inspect its contents.
+
+    ```bash
+    attest-cli parse app.quote
+    ```
+
+4.  The output JSON can then be used by a verifier service to check if the RTMR values match the expected measurements for the "billing-service" deployment.
+
+## License
+
+This project is licensed under either of
+
+*   Apache License, Version 2.0, ([LICENSE-APACHE](LICENSE-APACHE) or http://www.apache.org/licenses/LICENSE-2.0)
+*   MIT license ([LICENSE-MIT](LICENSE-MIT) or http://opensource.org/licenses/MIT)
+
+at your option.
+
+## Contributing
+
+Contributions are welcome! Please feel free to open an issue or submit a pull request on the [GitHub repository](https://github.com/billionairiam/attest-cli).
