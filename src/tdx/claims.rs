@@ -13,7 +13,9 @@ use crate::eventlog::MeasuredEntity;
 
 macro_rules! parse_claim {
     ($map_name: ident, $key_name: literal, $field: ident) => {
-        $map_name.insert($key_name.to_string(), serde_json::Value::Object($field))
+        if let Ok(val) = serde_json::to_value(&$field) {
+            $map_name.insert($key_name.to_string(), val);
+        }
     };
     ($map_name: ident, $key_name: literal, $field: expr) => {
         $map_name.insert(
@@ -33,13 +35,18 @@ pub fn generate_parsed_claim(
     let mut quote_header = Map::new();
 
     match &quote {
-        Quote::V4 { header, body } => {
+        Quote::V4 {
+            header,
+            body,
+            certs,
+        } => {
             parse_claim!(quote_header, "version", b"\x04\x00");
             parse_claim!(quote_header, "att_key_type", header.att_key_type);
             parse_claim!(quote_header, "tee_type", header.tee_type);
             parse_claim!(quote_header, "reserved", header.reserved);
             parse_claim!(quote_header, "vendor_id", header.vendor_id);
             parse_claim!(quote_header, "user_data", header.user_data);
+
             parse_claim!(quote_body, "tcb_svn", body.tcb_svn);
             parse_claim!(quote_body, "mr_seam", body.mr_seam);
             parse_claim!(quote_body, "mrsigner_seam", body.mrsigner_seam);
@@ -58,12 +65,14 @@ pub fn generate_parsed_claim(
 
             parse_claim!(quote_map, "header", quote_header);
             parse_claim!(quote_map, "body", quote_body);
+            parse_claim!(quote_map, "certs", certs);
         }
         Quote::V5 {
             header,
             r#type,
             size,
             body,
+            certs,
         } => {
             parse_claim!(quote_header, "version", b"\x05\x00");
             parse_claim!(quote_header, "att_key_type", header.att_key_type);
@@ -93,6 +102,7 @@ pub fn generate_parsed_claim(
 
                     parse_claim!(quote_map, "header", quote_header);
                     parse_claim!(quote_map, "body", quote_body);
+                    parse_claim!(quote_map, "certs", certs);
                 }
                 QuoteV5Body::Tdx15(body) => {
                     parse_claim!(quote_body, "tcb_svn", body.tcb_svn);
@@ -116,6 +126,7 @@ pub fn generate_parsed_claim(
 
                     parse_claim!(quote_map, "header", quote_header);
                     parse_claim!(quote_map, "body", quote_body);
+                    parse_claim!(quote_map, "certs", certs);
                 }
             }
         }

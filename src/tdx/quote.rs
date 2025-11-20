@@ -1,5 +1,6 @@
 use anyhow::{Result, anyhow, bail};
 use core::fmt;
+use regex::Regex;
 use scroll::Pread;
 
 pub const QUOTE_HEADER_SIZE: usize = 48;
@@ -268,6 +269,7 @@ pub enum Quote {
     V4 {
         header: QuoteHeader,
         body: ReportBody2,
+        certs: Vec<String>,
     },
 
     /// TD Quote Payload(Version 5)
@@ -280,6 +282,7 @@ pub enum Quote {
         r#type: QuoteV5Type,
         size: [u8; 4],
         body: QuoteV5Body,
+        certs: Vec<String>,
     },
 }
 
@@ -310,15 +313,20 @@ impl Quote {
 impl fmt::Display for Quote {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            Quote::V4 { header, body } => write!(f, "TD Quote (V4):\n{header}\n{body}\n"),
+            Quote::V4 {
+                header,
+                body,
+                certs,
+            } => write!(f, "TD Quote (V4):\n{header}\n{body}\n{certs:#?}\n"),
             Quote::V5 {
                 header,
                 r#type,
                 size,
                 body,
+                certs,
             } => write!(
                 f,
-                "TD Quote (V5):\n{header}\n{type}\n{}\n{body}\n",
+                "TD Quote (V5):\n{header}\n{type}\n{}\n{body}\n{certs:#?}\n",
                 hex::encode(size)
             ),
         }
@@ -331,12 +339,24 @@ pub fn parse_tdx_quote(quote_bin: &[u8]) -> Result<Quote> {
         .pread::<QuoteHeader>(0)
         .map_err(|e| anyhow!("Parse TD quote header failed: {:?}", e))?;
 
+    let content_str = String::from_utf8_lossy(&quote_bin);
+    let re = Regex::new(r"-----BEGIN CERTIFICATE-----[\s\S]+?-----END CERTIFICATE-----").unwrap();
+
+    let mut certs = Vec::new();
+    for mat in re.find_iter(&content_str) {
+        certs.push(String::from(mat.as_str()));
+    }
+
     match header.version {
         [4, 0] => {
             let body: ReportBody2 = quote_bin
                 .pread::<ReportBody2>(QUOTE_HEADER_SIZE)
                 .map_err(|e| anyhow!("Parse TD quote v4 body failed: {:?}", e))?;
-            Ok(Quote::V4 { header, body })
+            Ok(Quote::V4 {
+                header,
+                body,
+                certs,
+            })
         }
         [5, 0] => {
             let r#type = QuoteV5Type::from_bytes(
@@ -363,6 +383,7 @@ pub fn parse_tdx_quote(quote_bin: &[u8]) -> Result<Quote> {
                         r#type,
                         size,
                         body: QuoteV5Body::Tdx10(body),
+                        certs,
                     })
                 }
                 QuoteV5Type::TDX15 => {
@@ -377,6 +398,7 @@ pub fn parse_tdx_quote(quote_bin: &[u8]) -> Result<Quote> {
                         r#type,
                         size,
                         body: QuoteV5Body::Tdx15(body),
+                        certs,
                     })
                 }
             }
